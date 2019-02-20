@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -6,6 +6,7 @@ app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
+app.secret_key = "abcde"
 
 class Blog(db.Model):
 
@@ -23,12 +24,12 @@ class Blog(db.Model):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(25))
+    email = db.Column(db.String(25))
     password = db.Column(db.String(25))
     blogs = db.relationship('Blog', backref = 'writer')
 
-    def __init__(self, username, password):
-        self.username = username
+    def __init__(self, email, password):
+        self.email = email
         self.password = password
 
 @app.route('/', methods=['GET'])
@@ -70,15 +71,80 @@ def add_post():
 
     return render_template('newpost.html')
 
-# @app.route('/signup')
+@app.route('/signup', methods=['POST', 'GET'])
+def signup():
+    if request.method == 'POST':
+        email = request.form['email']
+        user_error = ""
 
-# @app.route('/login')
+        if len(email) < 3:
+            user_error = "User name must be greater than two characters."
+            email = ""
+
+        for char in email:
+            if char == " ":
+                user_error = "User name cannot contain spaces."
+                email = ""
+
+        password = request.form['password']
+        password_error = ""
+
+        if len(password) < 3:
+            password_error = "Password must be greater than two characters."
+            password = ""
+
+        for char in password:
+            if char == " ":
+                password_error = "Password cannot contain spaces."
+                password = ""
+
+        verify = request.form['verify']
+        verify_error = ""
+        if verify != password:
+            verify_error = "Password does not match."
+            verify = ""
+
+        if user_error or password_error or verify_error:
+            return render_template('signup.html', email=email, user_error=user_error, password_error=password_error, verify_error=verify_error)            
+        else:
+            existing_user = User.query.filter_by(email=email).first()
+            if not existing_user:
+                new_user = User(email, password)
+                db.session.add(new_user)
+                db.session.commit()
+                session['email'] = email
+                return redirect('/newpost')
+            else:
+                flash("User already exist. Please select a different username to register.", 'error')
+                return redirect('/signup')
+
+    return render_template('signup.html')
+
+@app.route('/login', methods=['POST','GET'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            flash("User does not exist. Please register for an account.", 'error')
+            return redirect('/login')
+        if user and user.password != password:
+            flash('Incorrect password.', 'error')
+            return redirect('/login')
+        if user and user.password == password:
+            session['email'] = email
+            flash("Logged in")  
+            return redirect('/newpost')
+
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    del session['email']
+    return redirect('/blog')
 
 # @app.route('/index')
-
-# We'll have a logout function that handles a POST
-# request to /logout and redirects the user to
-# /blog after deleting the username from the session.
 
 if __name__ == '__main__':
     app.run()
