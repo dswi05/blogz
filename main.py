@@ -40,7 +40,6 @@ def require_login():
 def index():
     writers = User.query.all()
     return render_template('index.html', writers=writers)
-    # EDIT THIS SECTION FOR USERS
 
 @app.route('/blog', methods=['GET'])
 def blog():

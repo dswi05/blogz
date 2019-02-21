@@ -3,7 +3,7 @@
 {% block content %}
     <ul style="list-style: none;" id="allwriters">
         {% for writer in writers %}
-            <li><a href = "/?id={{ writer.id }}">{{writer.email}}</a>
+            <li><a href = "/singleuser?id={{ writer.id }}">{{writer.email}}</a>
         {% endfor %}
     </ul>
 {% endblock %}
