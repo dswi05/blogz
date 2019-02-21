@@ -20,8 +20,6 @@ class Blog(db.Model):
         self.body = body
         self.writer = writer
 
-# Add a user class to handle users - Done
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(25))
@@ -32,9 +30,17 @@ class User(db.Model):
         self.email = email
         self.password = password
 
+@app.before_request
+def require_login():
+    allowed_routes = ['login', 'signup', 'blog','index']
+    if request.endpoint not in allowed_routes and 'email' not in session:
+        return redirect('/login')
+
 @app.route('/', methods=['GET'])
 def index():
-    return redirect('/blog')
+    writers = User.query.all()
+    return render_template('index.html', writers=writers)
+    # EDIT THIS SECTION FOR USERS
 
 @app.route('/blog', methods=['GET'])
 def blog():
@@ -64,7 +70,7 @@ def add_post():
             return render_template('newpost.html', content_error=content_error, blog_title=blog_title)
 
         else:
-            new_post = Blog(blog_title, blog_content) #add new parameter for blogs (relationship)
+            new_post = Blog(blog_title, blog_content, logged_in_user())
             db.session.add(new_post)
             db.session.commit()
             return redirect ('/blog?id=' + str(new_post.id))
@@ -139,12 +145,14 @@ def login():
 
     return render_template('login.html')
 
+def logged_in_user():
+    writer = User.query.filter_by(email=session['email']).first()
+    return writer
+
 @app.route('/logout')
 def logout():
     del session['email']
     return redirect('/blog')
-
-# @app.route('/index')
 
 if __name__ == '__main__':
     app.run()
