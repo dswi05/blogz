@@ -38,6 +38,7 @@ def require_login():
 
 @app.route('/', methods=['GET'])
 def index():
+
     writers = User.query.all()
     return render_template('index.html', writers=writers)
 
@@ -47,9 +48,15 @@ def blog():
     if len(request.args) == 0:
         blogs = Blog.query.all()
         return render_template('blog.html',blogs=blogs)
+    
+    if request.args.get('user'):
+        return redirect('/login')
+        #CHANGE THIS SO IT SHOWS A LIST OF BLOGS BY THE 
+
     else:
         blog_id = Blog.query.filter_by(id=int(request.args.get('id'))).first()
-        return render_template('blog.html', blog_title=blog_id.title, blog_body=blog_id.body)
+        writer = logged_in_user()
+        return render_template('blog.html', blog_title=blog_id.title, blog_body=blog_id.body, writer=writer.email, writer_id=writer.id) 
 
 @app.route('/newpost', methods=['POST','GET'])
 def add_post():
