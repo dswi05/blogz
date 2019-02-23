@@ -47,11 +47,13 @@ def blog():
 
     if len(request.args) == 0:
         blogs = Blog.query.all()
-        return render_template('blog.html',blogs=blogs)
+        #EDIT THIS TO JOIN TABLE
+        writers = Blog.query.join(User, User.id==Blog.writer_id).filter_by(email=User.email).first()
+        return render_template('blog.html',blogs=blogs, writers=writers)
     
     if request.args.get('user'):
         return redirect('/login')
-        #CHANGE THIS SO IT SHOWS A LIST OF BLOGS BY THE 
+        #CHANGE THIS SO IT SHOWS A LIST OF BLOGS BY THE USER
 
     else:
         blog_id = Blog.query.filter_by(id=int(request.args.get('id'))).first()
@@ -74,7 +76,7 @@ def add_post():
         if len(blog_content) < 1:
             content_error = "Content must contain at least 1 character"
             return render_template('newpost.html', content_error=content_error, blog_title=blog_title)
-
+#THIS DOESN'T WORK PROPERLY
         else:
             new_post = Blog(blog_title, blog_content, logged_in_user())
             db.session.add(new_post)

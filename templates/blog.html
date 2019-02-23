@@ -4,7 +4,9 @@
     {% if request.args|length == 0: %}
         <ul style="list-style: none;" id="allblogs">
             {% for blog in blogs %}
-            <li><a href = "/blog?id={{ blog.id }}">{{blog.title}}</a> <br> {{blog.body}} <br> <!-- <p>Written By: <a href= >{{}}</a></p> --> </li> <hr>
+            <li><a href = "/blog?id={{ blog.id }}">{{blog.title}}</a> <br> {{blog.body}} <br>
+            Written By: <a href= "/blog?user={{ writers.id }}">{{ writers.email }}</a>
+            </li> <hr>
             {% endfor %}
         </ul>
     {% else %}
