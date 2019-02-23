@@ -2,16 +2,29 @@
 <html>
     <head>
         <title>Blogz</title>
-        <a href='/', float: right;>Home</a>
-        <a href='/blog', float: right;>All Blogs</a>
-        <a href='/newpost', float: right;>New Post</a>
-        <a href='/signup', float: right;>Register</a>
-        <a href='/login', float: right;>Login</a>
-        <a href='/logout', float: right;>Logout</a>
+        <div class='nav'>
+            <a href='/' class='menu'>Home</a>
+            <a href='/blog' class='menu'>All Blogs</a>
+            <a href='/newpost' class='menu'>New Post</a>
+            {% if not session['email'] %}
+                <a href='/signup' class='menu'>Register</a>
+                <a href='/login' class='menu'>Login</a>
+            {% else %}
+                <a href='/logout' class='menu'>Logout</a>
+            {% endif %}
+        </div>
         <h1 align="center">BLOGZ</h1>
         <style type="text/css">
             .error {
                 color: red;
+            }
+            .nav {
+                float: right;
+            }
+            .menu {
+                color: blue;
+                text-decoration: none;
+                margin-right: 10px;
             }
         </style>
     </head>

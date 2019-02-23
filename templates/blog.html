@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% if request.args|length == 0: %}
+    {% if not request.args.id %}
         <ul style="list-style: none;" id="allblogs">
             {% for blog in blogs %}
             <li><a href = "/blog?id={{ blog.id }}">{{blog.title}}</a> <br> {{blog.body}} <br>
-            Written By: <a href= "/blog?user={{ writers.id }}">{{ writers.email }}</a>
+            Written By: <a href= "/blog?user={{ blog.writer.id }}">{{ blog.writer.email }}</a>
             </li> <hr>
             {% endfor %}
         </ul>
     {% else %}
-        <h1> {{blog_title}} </h1>
+        <h1> {{blog.title}} </h1>
         <hr>
-        <p> {{blog_body}} </p>
+        <p> {{blog.body}} </p>
         <br>
-        <p> Written by <a href = "/blog?user={{ writer_id }}">{{writer}}</a> </p>
+        <p> Written by <a href = "/blog?user={{ blog.writer.id }}">{{blog.writer.email}}</a> </p>
     {% endif %}
 {% endblock %}
